@@ -1,0 +1,37 @@
+{% extends 'admin/base.html' %}
+{% block branding %}
+    <h1 id="site-name">
+        <a title="Services">State Manager</a>
+    </h1>
+        <div style="align:left;">
+            <button onclick="window.history.back();" class="btn btn-secondary btn-sm"><-</button>
+            <button onclick="window.history.forward();" class="btn btn-secondary btn-sm">-></button>
+            <button onclick="location.href='{% url 'service_list' %}'" class="btn btn-secondary btn-sm">Dashboard</button>
+            <button onclick="location.href='{% url 'admin:index' %}'" class="btn btn-secondary btn-sm">Admin</button>
+        </div>
+{% endblock %}
+
+{% block breadcrumbs %}
+    <!-- This block is intentionally left empty to remove breadcrumbs -->
+{% endblock %}
+
+{% block footer %}
+    <div id="footer" align="center">
+        <p>State Manager for Plivo : Submitted by Apurv Chaudhary</p>
+    </div>
+{% endblock %}
+
+{% block extrahead %}
+{% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Reset Bootstrap styles for admin buttons */
+        .submit-row *, .cancel-link {
+            all: revert;
+        }
+    </style>
+{% endblock %}
+
+{% block extrajs %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

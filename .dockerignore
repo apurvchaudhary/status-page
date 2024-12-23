@@ -1,0 +1,12 @@
+.git
+.dockerignore
+*.md
+.cache
+.gitignore
+*.pyc
+docker-compose.yml
+Dockerfile
+venv
+static
+.idea
+.DS_Store

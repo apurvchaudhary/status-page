@@ -1,0 +1,171 @@
+{% extends 'admin/base_site.html' %}
+
+{% block title %}Organizations and Services{% endblock %}
+
+{% block content %}
+{% load static %}
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </head>
+    <div class="table-container">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th class="text-center">Organization</th>
+                    <th class="text-center">Services</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for org in organizations %}
+                    <tr>
+                        <td class="text-center">{{ org.name }}</td>
+                        <td>
+                            <ul class="service-list">
+                                {% for service in org.services.all %}
+                                    <li class="service-item">
+                                        <!-- Assign status class based on service status -->
+                                        <span class="status-circle
+                                            {% if service.status == 'Operational' %}
+                                                operational
+                                            {% elif service.status == 'Degraded Performance' %}
+                                                degraded-performance
+                                            {% elif service.status == 'Partial Outage' %}
+                                                partial-outage
+                                            {% elif service.status == 'Major Outage' %}
+                                                major-outage
+                                            {% endif %}
+                                        "></span>
+                                        {{ service.name }}
+                                        <a href="{% url 'service_detail' service.id %}"
+                                           class="btn btn-link"><i class="fa fa-eye"></i></a>
+                                        {% if user.is_authenticated %}
+                                        <a href="{% url 'admin:service_service_change' service.id %}"
+                                           class="btn btn-link"><i class="fa fa-edit"></i></a>
+                                        <a href="{% url 'admin:service_service_delete' service.id %}" class="btn btn-link"><i class="fa fa-trash-alt"></i></a>
+                                        {% else %}
+                                        {% endif %}
+                                    </li>
+                                {% empty %}
+                                    <li>No services available</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <style>
+        .table-container {
+            max-width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            vertical-align: middle;
+            color: black;
+        }
+
+        .service-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .service-item {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: left;
+        }
+
+        .status-circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .operational {
+            background-color: #28a745; /* Green */
+            hover: operational
+        }
+
+        .degraded-performance {
+            background-color: #ffc107; /* Yellow */
+        }
+
+        .partial-outage {
+            background-color: #fd7e14; /* Orange */
+        }
+
+        .major-outage {
+            background-color: #dc3545; /* Red */
+        }
+
+        .btn-link {
+            color: #007bff;
+            text-decoration: none;
+            padding: 0 5px;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .table td {
+            background-color: #ffffff;
+        }
+
+        .table tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+<script>
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission().then(function(permission) {
+            if (permission === "granted") {
+                console.log("Notification permission granted.");
+            }
+        });
+    }
+
+    const organizationIds = [
+        {% for org in organizations %}
+            {{ org.id }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/updates/');
+
+    socket.onmessage = function(e) {
+
+        const data = JSON.parse(e.data);
+        const message = data.update.message || null
+        const organizationIdFromMessage = data.update.organization_id || null;
+
+        if (organizationIds.includes(organizationIdFromMessage)) {
+            if (Notification.permission === "granted") {
+                new Notification("New update!", {
+                    body: message,
+                    icon: '{% static "images/favicon.png" %}',
+                });
+            }
+            window.location.reload();
+        }
+    };
+</script>
+{% endblock %}
