@@ -17,5 +17,5 @@ urlpatterns = [
     # favicon for site
     path("favicon.ico", RedirectView.as_view(url="/static/images/favicon.png")),
 ]
-handler403 = 'account.exception_handler.handler403'
-handler404 = 'account.exception_handler.handler404'
+handler403 = "account.exception_handler.handler403"
+handler404 = "account.exception_handler.handler404"

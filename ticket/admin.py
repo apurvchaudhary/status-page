@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.db.models import Q
 from django.utils import timezone
+from django.db.models.signals import post_save
 
 from ticket.models import Incident, Maintenance, Update, Service
 
@@ -31,15 +32,8 @@ class IncidentAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.created_by = request.user
-        else:
-            Update.objects.create(
-                incident=obj,
-                status=obj.status,
-                update_text=form.cleaned_data.get("remark"),
-                created_at=timezone.now(),
-                updated_by=request.user,
-            )
         obj.updated_by = request.user
+        obj.remark = form.cleaned_data.get("remark")
         obj.save()
 
     def get_form(self, request, obj=None, **kwargs):
@@ -74,14 +68,7 @@ class MaintenanceAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.created_by = request.user
-        else:
-            Update.objects.create(
-                maintenance=obj,
-                status=obj.status,
-                update_text=form.cleaned_data.get("remark"),
-                created_at=timezone.now(),
-                updated_by=request.user,
-            )
+        obj.remark = form.cleaned_data.get("remark")
         obj.updated_by = request.user
         obj.save()
 
