@@ -1,10 +1,22 @@
 from django import forms
 from django.contrib import admin
-from django.db.models import Q
-from django.utils import timezone
-from django.db.models.signals import post_save
 
-from ticket.models import Incident, Maintenance, Update, Service
+from ticket.models import Incident, Maintenance
+
+
+def set_save_context(obj, change, request, form):
+    if not change:
+        obj.created_by = request.user
+    obj.updated_by = request.user
+    obj.remark = form.cleaned_data.get("remark")
+
+
+def set_form_context(obj, form):
+    if obj:
+        form.base_fields["service"].disabled = True
+    else:
+        form.base_fields["status"].disabled = True
+    return form
 
 
 class IncidentAdminForm(forms.ModelForm):
@@ -30,33 +42,12 @@ class IncidentAdmin(admin.ModelAdmin):
     search_fields = ("title", "status")
 
     def save_model(self, request, obj, form, change):
-        if not change:
-            obj.created_by = request.user
-        obj.updated_by = request.user
-        obj.remark = form.cleaned_data.get("remark")
+        set_save_context(obj, change, request, form)
         obj.save()
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        # Restrict services based on the logged-in user
-        if not request.user.is_superuser:
-            form.base_fields["service"].queryset = Service.objects.filter(
-                Q(organization__owner=request.user) | Q(organization__team__members=request.user)
-            ).distinct()
-            if obj:
-                form.base_fields["service"].disabled = True
-            else:
-                form.base_fields["status"].disabled = True
-        return form
-
-    def get_queryset(self, request):
-        if request.user.is_superuser:
-            return super().get_queryset(request)
-        elif request.user.role == "admin":
-            return Incident.objects.filter(
-                Q(service__organization__owner=request.user) | Q(service__organization__team__members=request.user)
-            ).distinct()
-        return Incident.objects.filter(service__organization__team__members=request.user).distinct()
+        return set_form_context(obj, form)
 
 
 @admin.register(Maintenance)
@@ -66,30 +57,9 @@ class MaintenanceAdmin(admin.ModelAdmin):
     search_fields = ("title", "status")
 
     def save_model(self, request, obj, form, change):
-        if not change:
-            obj.created_by = request.user
-        obj.remark = form.cleaned_data.get("remark")
-        obj.updated_by = request.user
+        set_save_context(obj, change, request, form)
         obj.save()
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        # Restrict services based on the logged-in user
-        if not request.user.is_superuser:
-            form.base_fields["service"].queryset = Service.objects.filter(
-                Q(organization__owner=request.user) | Q(organization__team__members=request.user)
-            ).distinct()
-            if obj:
-                form.base_fields["service"].disabled = True
-            else:
-                form.base_fields["status"].disabled = True
-        return form
-
-    def get_queryset(self, request):
-        if request.user.is_superuser:
-            return super().get_queryset(request)
-        elif request.user.role == "admin":
-            return Maintenance.objects.filter(
-                Q(service__organization__owner=request.user) | Q(service__organization__team__members=request.user)
-            ).distinct()
-        return Maintenance.objects.filter(service__organization__team__members=request.user).distinct()
+        return set_form_context(obj, form)

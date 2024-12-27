@@ -7,7 +7,7 @@ SECRET_KEY = "django-insecure-n3!e@%3*kl6(nvk-j$***@0=hfeq3dqsjp%jlhpa3(y+zh187*
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "0.0.0.0", "52.66.194.246"]
+ALLOWED_HOSTS = ['localhost', '.localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -57,8 +57,15 @@ ASGI_APPLICATION = "project.routing.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        'NAME': "state_manager",
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': f'{os.getenv("DB_HOST", "localhost")}',
+        'PORT': 5432,
+        'OPTIONS': {
+            'options': f'-c search_path={os.getenv("DB_SCHEMA", "public")}'
+        },
     }
 }
 
@@ -101,14 +108,14 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)],  # Redis server configuration
+            "hosts": [("localhost", 6379)],  # Redis server configuration
         },
     },
 }
 
 # CELERY STUFF
-BROKER_URL = "redis://redis:6379/0"
-CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

@@ -1,16 +1,12 @@
 {% extends 'admin/base_site.html' %}
+{% block title %}404{% endblock %}
 {% block content %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404</title>
     <style>
         .container {
             max-width: 600px;
-        }
-        h1 {
-            font-size: 6rem;
-            margin: 0;
         }
         .p-error {
             font-size: 1.5rem;
@@ -20,7 +16,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>404</h1>
+        <h1 id="header">404</h1>
         <p class="p-error">Oops! The page/data you’re looking for doesn’t exist.</p>
         <a href="/">Go Back Home</a>
     </div>

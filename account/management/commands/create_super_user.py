@@ -21,5 +21,6 @@ class Command(BaseCommand):
             user.set_password("admin1234")
             user.is_superuser = True
             user.is_staff = True
+            user.role = CustomUser.ROLE_CHOICES[0][0]
             user.save()
-            self.stdout.write(self.style.SUCCESS(f"super user admin created successfully"))
+            self.stdout.write(self.style.SUCCESS(f"super user created successfully"))

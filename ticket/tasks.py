@@ -15,7 +15,6 @@ def send_websocket_update(message):
 def get_instance_message(instance, model, created):
     if model is Service:
         message = {
-            "organization_id": instance.organization_id,
             "service_id": instance.id,
             "message": f"{'created' if created else 'updated'} service {instance.name}",
         }

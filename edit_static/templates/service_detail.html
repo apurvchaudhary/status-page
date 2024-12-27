@@ -1,116 +1,107 @@
 {% extends 'admin/base_site.html' %}
 {% block content %}
 {% load static %}
-<head>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-</head>
 <div class="column card">
-    <h5>Service : {{ service.name }}</h5>
-    <p>About : {{ service.description }}</p>
-    <p>Current Status : {{ service.status }}</p>
-    <p>Last updated at : {{ service.updated_at }}</p>
+   <h4>{{ service.name }}</h4>
+   <p>{{ service.description }}</p>
+   <div class="{% if service.status == 'Operational' %}green{% elif service.status == 'Degraded Performance' %}yellow{% elif service.status == 'Partial Outage' %}orange{% else %}red{% endif %}"
+      data-id="{{ service.id }}">
+      <p>{{ service.status }}</p>
+   </div>
+    Last updated at {{ service.updated_at }}
 </div>
-<div class="container mt-5">
-    <div class="row">
-        <!-- Left Column: Incidents -->
-        <div class="col-md-6">
-            <h4>Incidents</h4>
-            {% if incidents %}
-            <ul class="list-group">
-                {% for incident in incidents %}
-                <li class="list-group-item">
-                    <h5>{{ incident.title }}</h5>
-                    <p><strong>Status:</strong>
-                        <span class="badge {% if incident.status == 'open' %}bg-danger{% elif incident.status == 'in_progress' %}bg-warning{% else %}bg-success{% endif %}">
-                                    {{ incident.get_status_display }}
-                                </span>
-                    </p>
-                    <p><strong>Description:</strong> {{ incident.description }}</p>
-                    <p><strong>created by:</strong> {{ incident.created_by.username }} <strong>on</strong>
-                        {{ incident.created_at }}</p>
-                    <p><strong>updated by:</strong> {{ incident.updated_by.username }} <strong>on</strong>
-                        {{ incident.updated_at }}</p>
-                    <a class="btn btn-info" href="{% url 'incident_detail' incident.id %}">Details</a>
-                </li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p>No incidents for this service.</p>
-            {% endif %}
-        </div>
-
-        <!-- Right Column: Maintenance -->
-        <div class="col-md-6">
-            <h4>Maintenances</h4>
-            {% if maintenances %}
-            <ul class="list-group">
-                {% for maintenance in maintenances %}
-                <li class="list-group-item">
-                    <h5>{{ maintenance.title }}</h5>
-                    <p><strong>Status:</strong>
-                        <span class="badge {% if maintenance.status == 'scheduled' %}bg-info{% elif maintenance.status == 'in_progress' %}bg-warning{% else %}bg-success{% endif %}">
-                                    {{ maintenance.get_status_display }}
-                                </span>
-                        <strong>FROM:</strong> {{ maintenance.start_time }} <strong>TO</strong>
-                        {{ maintenance.end_time }}
-                    </p>
-                    <p><strong>Description:</strong> {{ maintenance.description }}</p>
-                    <p><strong>created by:</strong> {{ maintenance.created_by.username }} <strong>on</strong>
-                        {{ maintenance.created_at }}</p>
-                    <p><strong>updated by:</strong> {{ maintenance.updated_by.username }} <strong>on</strong>
-                        {{ maintenance.updated_at }}</p>
-                    <a class="btn btn-info" href="{% url 'maintenance_detail' maintenance.id %}">Details</a>
-                </li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p>No maintenance records for this service.</p>
-            {% endif %}
-        </div>
-    </div>
+<div class="container">
+   <div class="row">
+      <!-- Left Column: Incidents -->
+      <div class="col-md-6">
+         <!--suppress XmlDuplicatedId -->
+          <h4 id="header">Incidents</h4>
+         {% if incidents %}
+         <ul class="list-group">
+            {% for incident in incidents %}
+            <li class="list-group-item">
+               <h5>{{ incident.title }}</h5>
+               <p><strong>Status:</strong>
+                  <span class="badge {% if incident.status == 'open' %}bg-danger{% elif incident.status == 'in_progress' %}bg-warning{% else %}bg-success{% endif %}">
+                  {{ incident.get_status_display }}
+                  </span>
+               </p>
+               <p><strong>Description:</strong> {{ incident.description }}</p>
+               <p><strong>created by:</strong> {{ incident.created_by.username }} <strong>on</strong>
+                  {{ incident.created_at }}
+               </p>
+               <p><strong>updated by:</strong> {{ incident.updated_by.username }} <strong>on</strong>
+                  {{ incident.updated_at }}
+               </p>
+               <a class="btn btn-info" href="{% url 'incident_detail' incident.id %}">Details</a>
+            </li>
+            {% endfor %}
+         </ul>
+         {% else %}
+         <p>No open/in-progress incident</p>
+         {% endif %}
+      </div>
+      <!-- Right Column: Maintenance -->
+      <div class="col-md-6">
+         <!--suppress XmlDuplicatedId -->
+          <h4 id="header">Maintenances</h4>
+         {% if maintenances %}
+         <ul class="list-group">
+            {% for maintenance in maintenances %}
+            <li class="list-group-item">
+               <h5>{{ maintenance.title }}</h5>
+               <p><strong>Status:</strong>
+                  <span class="badge {% if maintenance.status == 'scheduled' %}bg-info{% elif maintenance.status == 'in_progress' %}bg-warning{% else %}bg-success{% endif %}">
+                  {{ maintenance.get_status_display }}
+                  </span>
+                  <strong>FROM:</strong> {{ maintenance.start_time }} <strong>TO</strong>
+                  {{ maintenance.end_time }}
+               </p>
+               <p><strong>Description:</strong> {{ maintenance.description }}</p>
+               <p><strong>created by:</strong> {{ maintenance.created_by.username }} <strong>on</strong>
+                  {{ maintenance.created_at }}
+               </p>
+               <p><strong>updated by:</strong> {{ maintenance.updated_by.username }} <strong>on</strong>
+                  {{ maintenance.updated_at }}
+               </p>
+               <a class="btn btn-info" href="{% url 'maintenance_detail' maintenance.id %}">Details</a>
+            </li>
+            {% endfor %}
+         </ul>
+         {% else %}
+         <p>No scheduled/in-progress maintenance</p>
+         {% endif %}
+      </div>
+   </div>
 </div>
-<style>
-    .column {
-      float: center;
-      width: 100%;
-      padding: 0 10px;
-    }
-
-    .card {
-      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-      padding: 16px;
-      text-align: left;
-      background-color: #f1f1f1;
-    }
-</style>
 <script>
-    if (Notification.permission !== "granted") {
-        Notification.requestPermission().then(function(permission) {
-            if (permission === "granted") {
-                console.log("Notification permission granted.");
-            }
-        });
-    }
+   if (Notification.permission !== "granted") {
+       Notification.requestPermission().then(function(permission) {
+           if (permission === "granted") {
+               console.log("Notification permission granted.");
+           }
+       });
+   }
 
-    const serviceId = "{{ service.id }}";
+   const serviceId = "{{ service.id }}";
 
-    const socket = new WebSocket('ws://' + window.location.host + '/ws/updates/');
+   const socket = new WebSocket('ws://' + window.location.host + '/ws/updates/');
 
-    socket.onmessage = function(e) {
+   socket.onmessage = function(e) {
 
-        const data = JSON.parse(e.data);
-        const message = data['update']['message'];
-        const serviceIdFromMessage = data['update']['service_id'];
+       const data = JSON.parse(e.data);
+       const message = data['update']['message'];
+       const serviceIdFromMessage = data['update']['service_id'];
 
-        if (serviceId && serviceIdFromMessage == serviceId) {
-            if (Notification.permission === "granted") {
-                new Notification("New update!", {
-                    body: message,
-                    icon: '{% static "images/favicon.png" %}',
-                });
-            }
-            window.location.reload();
-        }
-    };
+       if (serviceId && serviceIdFromMessage == serviceId) {
+           if (Notification.permission === "granted") {
+               new Notification("New update!", {
+                   body: message,
+                   icon: '{% static "images/favicon.png" %}',
+               });
+           }
+           window.location.reload();
+       }
+   };
 </script>
 {% endblock %}
