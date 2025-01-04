@@ -5,9 +5,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = "django-insecure-n3!e@%3*kl6(nvk-j$***@0=hfeq3dqsjp%jlhpa3(y+zh187*"
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '.localhost', '127.0.0.1']
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".status"]
+CSRF_TRUSTED_ORIGINS = ["http://*.status"]
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -58,14 +60,12 @@ ASGI_APPLICATION = "project.routing.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        'NAME': "state_manager",
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': f'{os.getenv("DB_HOST", "localhost")}',
-        'PORT': 5432,
-        'OPTIONS': {
-            'options': f'-c search_path={os.getenv("DB_SCHEMA", "public")}'
-        },
+        "NAME": "state_manager",
+        "USER": "postgres",
+        "PASSWORD": "postgres",
+        "HOST": f'{os.getenv("DB_HOST", "localhost")}',
+        "PORT": 5432,
+        "OPTIONS": {"options": f'-c search_path={os.getenv("DB_SCHEMA", "public")}'},
     }
 }
 
