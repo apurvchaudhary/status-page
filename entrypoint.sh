@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Run migrations
 echo "Running migrations..."
 python manage.py migrate
